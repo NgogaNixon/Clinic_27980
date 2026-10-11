@@ -45,6 +45,10 @@ public class AppointmentController {
         if (returnedMessage.startsWith("Doctor is already booked")) {
             return new ResponseEntity<>(returnedMessage, HttpStatus.CONFLICT);
         }
+        // Quiz 2 B1: a date in the past gives 400
+        if (returnedMessage.startsWith("Appointment date cannot be in the past")) {
+            return new ResponseEntity<>(returnedMessage, HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(returnedMessage, HttpStatus.CREATED);
     }
 
@@ -82,6 +86,10 @@ public class AppointmentController {
 
         if (returnedMessage.startsWith("we don't have")) {
             return new ResponseEntity<>(returnedMessage, HttpStatus.NOT_FOUND);
+        }
+        // Quiz 2 C4: an appointment with prescriptions gives 409
+        if (returnedMessage.startsWith("That appointment has prescriptions")) {
+            return new ResponseEntity<>(returnedMessage, HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>(returnedMessage, HttpStatus.OK);
     }
@@ -167,5 +175,39 @@ public class AppointmentController {
         LocalDate day = LocalDate.parse(date);
         String returnedMessage = appointmentService.deleteCancelledBefore(day);
         return new ResponseEntity<>(returnedMessage, HttpStatus.OK);
+    }
+
+    // Quiz 2 B2: PATCH /api/appointments/{id}/status?status=COMPLETED
+    @PatchMapping(value = "/{id}/status", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateAppointmentStatus(@PathVariable UUID id,
+                                                     @RequestParam AppointmentStatus status) {
+        String returnedMessage = appointmentService.updateAppointmentStatus(id, status);
+
+        if (returnedMessage.startsWith("The appointment with that id")) {
+            return new ResponseEntity<>(returnedMessage, HttpStatus.NOT_FOUND);
+        } else if (returnedMessage.startsWith("Cannot change status")) {
+            return new ResponseEntity<>(returnedMessage, HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>(returnedMessage, HttpStatus.OK);
+        }
+    }
+
+    // Quiz 2 B3: PATCH /api/appointments/{id}/reschedule?newDate=2026-10-30
+    @PatchMapping(value = "/{id}/reschedule", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> rescheduleAppointment(@PathVariable UUID id,
+                                                   @RequestParam String newDate) {
+        LocalDate date = LocalDate.parse(newDate);
+        String returnedMessage = appointmentService.rescheduleAppointment(id, date);
+
+        if (returnedMessage.startsWith("The appointment with that id")) {
+            return new ResponseEntity<>(returnedMessage, HttpStatus.NOT_FOUND);
+        } else if (returnedMessage.startsWith("Doctor is already booked")) {
+            return new ResponseEntity<>(returnedMessage, HttpStatus.CONFLICT);
+        } else if (returnedMessage.endsWith("cannot be rescheduled")
+                || returnedMessage.startsWith("Appointment date cannot be in the past")) {
+            return new ResponseEntity<>(returnedMessage, HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>(returnedMessage, HttpStatus.OK);
+        }
     }
 }

@@ -13,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -39,7 +40,13 @@ public class Doctor {
     @JoinColumn (name="office_id")
     private Office office;
 
-    @ManyToMany (mappedBy = "doctors")
+    // the doctor owns the link, so the join table is declared here
+    @ManyToMany 
+    @JoinTable (
+        name = "doctor_specialization",
+        joinColumns = @JoinColumn (name="doctor_id"),
+        inverseJoinColumns = @JoinColumn (name="specialization_id")
+    )
     @JsonIgnore
     private List<Specialization> specializations = new ArrayList<>();
 

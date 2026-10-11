@@ -40,6 +40,7 @@ public class PatientService {
         patientToUpdate.setFirstName(patient.getFirstName());
         patientToUpdate.setLastName(patient.getLastName());
         patientToUpdate.setDateOfBirth(patient.getDateOfBirth());
+        patientToUpdate.setSsNumber(patient.getSsNumber());
 
         patientRepo.save(patientToUpdate);
         return "updated successfully";
@@ -69,5 +70,10 @@ public class PatientService {
     // C2
     public List<Patient> getFrequentPatients(long min) {
         return patientRepo.findFrequentPatients(min);
+    }
+
+    // Quiz 2 D2: does a patient with this ssNumber exist?
+    public boolean patientExistsBySsNumber(String ssNumber) {
+        return patientRepo.existsBySsNumber(ssNumber);
     }
 }

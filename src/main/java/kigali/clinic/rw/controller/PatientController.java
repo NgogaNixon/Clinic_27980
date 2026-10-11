@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import kigali.clinic.rw.domain.Appointment;
 import kigali.clinic.rw.domain.Patient;
+import kigali.clinic.rw.service.AppointmentService;
 import kigali.clinic.rw.service.DoctorService;
 import kigali.clinic.rw.service.PatientService;
 
@@ -32,6 +34,9 @@ public class PatientController {
 
     @Autowired
     private DoctorService doctorService;
+
+    @Autowired
+    private AppointmentService appointmentService;
 
     @PostMapping(value = "/save", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -102,5 +107,17 @@ public class PatientController {
     public ResponseEntity<List<Patient>> getFrequentPatients(@RequestParam long min) {
         List<Patient> patients = patientService.getFrequentPatients(min);
         return new ResponseEntity<>(patients, HttpStatus.OK);
+    }
+
+    // Quiz 2 D2: GET /api/patients/{ssNumber}/upcoming
+    @GetMapping(value = "/{ssNumber}/upcoming", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUpcomingAppointments(@PathVariable String ssNumber) {
+        // if the patient does not exist, answer 404
+        if (!patientService.patientExistsBySsNumber(ssNumber)) {
+            return new ResponseEntity<>("That patient with that ssnumber does not exist", HttpStatus.NOT_FOUND);
+        }
+
+        List<Appointment> appointments = appointmentService.getUpcomingAppointmentsOfPatient(ssNumber);
+        return new ResponseEntity<>(appointments, HttpStatus.OK);
     }
 }

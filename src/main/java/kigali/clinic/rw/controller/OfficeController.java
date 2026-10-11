@@ -87,4 +87,11 @@ public class OfficeController {
         }
         return new ResponseEntity<>(rows.get(0), HttpStatus.OK);
     }
+
+    // Quiz 2 A3: /api/offices/free
+    @GetMapping(value = "/free", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Office>> getFreeOffices() {
+        List<Office> offices = officeService.getFreeOffices();
+        return new ResponseEntity<>(offices, HttpStatus.OK);
+    }
 }

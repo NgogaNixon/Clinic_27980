@@ -66,4 +66,9 @@ public class OfficeService {
             return "we don't have office with that office Number " + officeNumber;
         }
     }
+
+    // Quiz 2 A3
+    public List<Office> getFreeOffices() {
+        return officeRepo.findFreeOffices();
+    }
 }

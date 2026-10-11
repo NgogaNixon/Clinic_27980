@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import kigali.clinic.rw.domain.Doctor;
 import kigali.clinic.rw.domain.Specialization;
@@ -48,11 +49,19 @@ public class SpecializationService {
         return "updated successfully";
     }
 
+    @Transactional
     public String deleteSpecializationById(UUID id) {
         Optional<Specialization> existingSpecialization = specializationRepo.findById(id);
 
         if (existingSpecialization.isEmpty()) {
             return "we don't have specialization with this id " + id;
+        }
+
+        // the doctor owns the link now, so first take this specialization away from the doctors
+        Specialization specialization = existingSpecialization.get();
+        for (Doctor doctor : specialization.getDoctors()) {
+            doctor.getSpecializations().remove(specialization);
+            doctorRepo.save(doctor);
         }
 
         specializationRepo.deleteById(id);
@@ -73,12 +82,12 @@ public class SpecializationService {
         Specialization specialization = existingSpecialization.get();
         Doctor doctor = existingDoctor.get();
 
-        if (specialization.getDoctors().contains(doctor)) {
+        if (doctor.getSpecializations().contains(specialization)) {
             return "this doctor already has this specialization";
         }
 
-        specialization.getDoctors().add(doctor);
-        specializationRepo.save(specialization);
+        doctor.getSpecializations().add(specialization);
+        doctorRepo.save(doctor);
         return "doctor assigned to specialization successfully";
     }
 
@@ -96,12 +105,12 @@ public class SpecializationService {
         Specialization specialization = existingSpecialization.get();
         Doctor doctor = existingDoctor.get();
 
-        if (!specialization.getDoctors().contains(doctor)) {
+        if (!doctor.getSpecializations().contains(specialization)) {
             return "this doctor does not have this specialization";
         }
 
-        specialization.getDoctors().remove(doctor);
-        specializationRepo.save(specialization);
+        doctor.getSpecializations().remove(specialization);
+        doctorRepo.save(doctor);
         return "doctor removed from specialization successfully";
     }
 

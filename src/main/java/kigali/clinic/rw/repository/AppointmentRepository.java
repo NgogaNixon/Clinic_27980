@@ -76,4 +76,16 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     @Modifying
     @Query("DELETE FROM Appointment a WHERE a.status = :status AND a.appointmentDate < :date")
     int deleteCancelledBefore(@Param("status") AppointmentStatus status, @Param("date") LocalDate date);
+
+    // Quiz 2 D1 (DERIVED): appointments of a doctor on a day, without the cancelled ones
+    List<Appointment> findByDoctor_IdAndAppointmentDateAndStatusNot(UUID doctorId, LocalDate date, AppointmentStatus status);
+
+    // Quiz 2 D2 (DERIVED): appointments of a patient from a date on, with one of the given statuses, soonest first
+    List<Appointment> findByPatient_SsNumberAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+            String ssNumber, LocalDate date, List<AppointmentStatus> statuses);
+
+    // Quiz 2 D4 (DERIVED countBy): used by the dashboard
+    long countByAppointmentDate(LocalDate date);
+
+    long countByStatus(AppointmentStatus status);
 }

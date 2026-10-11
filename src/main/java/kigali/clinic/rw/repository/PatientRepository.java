@@ -29,4 +29,7 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
          + "HAVING COUNT(a) >= :min "
          + "ORDER BY COUNT(a) DESC")
     List<Patient> findFrequentPatients(@Param("min") long min);
+
+    // Quiz 2 D2 (DERIVED): does a patient with this ssNumber exist?
+    boolean existsBySsNumber(String ssNumber);
 }

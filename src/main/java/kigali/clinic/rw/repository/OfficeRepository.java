@@ -30,5 +30,10 @@ public interface OfficeRepository  extends JpaRepository<Office,UUID>{
     //         """)
     // List<Office> findByDoctorName(@Param("name") String name);
 
+    // Quiz 2 A3 (JPQL): offices that no doctor occupies, sorted by office number
+    @Query("SELECT o FROM Office o "
+         + "WHERE NOT EXISTS (SELECT d FROM Doctor d WHERE d.office = o) "
+         + "ORDER BY o.officeNumber ASC")
+    List<Office> findFreeOffices();
 
 }
